@@ -1,24 +1,12 @@
-Dual Contouring Sample (DCS)
-==============================
 
-Objective for this fork of DCS
-----------------------------------
 
-Allow Opticks https://bitbucket.org/simoncblyth/opticks to use DualContouringSample
-as an optional external to provide adaptive resolution polygonalization of CSG geometry 
-defined via implicit signed distance functions.
+Extracts from:
 
-Specifically:
-
-* remove windows specifics
-* remove visualization machinery 
-* add interface to flexibly provide different implicit functions based
-  on std::function (requiring C++11 compiler)
-
+/usr/local/env/graphics/isosurface/dualcontouringsample/DualContouringSample
 
 
 Original README
------------------
+----------------
 
 A sample Dual Contouring implementation. For more info see http://ngildea.blogspot.co.uk/2014/11/implementing-dual-contouring.html
 

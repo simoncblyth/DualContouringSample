@@ -1,106 +1,121 @@
-/*
+#pragma once
 
-Implementations of Octree member functions.
-
-Copyright (C) 2011  Tao Ju
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public License
-(LGPL) as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-
-
-#ifndef		HAS_OCTREE_H_BEEN_INCLUDED
-#define		HAS_OCTREE_H_BEEN_INCLUDED
-
-#include "qef.h"
-#include "mesh.h"
+#include <functional>
+#include <vector>
 
 #include <glm/glm.hpp>
-using glm::vec3;
-using glm::ivec3;
 
-// ----------------------------------------------------------------------------
 
-enum OctreeNodeType
+struct OctreeDrawInfo ;
+struct FGLite ; 
+
+class OctreeNode ; 
+
+
+class OctreeMgr
 {
-	Node_None,
-	Node_Internal,
-	Node_Psuedo,
-	Node_Leaf,
+    public:
+        OctreeMgr(OctreeNode* root, float threshold) 
+           : 
+            m_root(root), 
+            m_threshold(threshold),
+            m_node_count(0), 
+            m_qef_nan(0), 
+            m_qef_oob(0) 
+          {};
+
+        OctreeNode* simplify();
+
+    private:
+        OctreeNode* simplify_r(OctreeNode* node, int depth);
+    private:
+        OctreeNode* m_root ; 
+        float       m_threshold ; 
+        int         m_node_count ; 
+        int         m_qef_nan ; 
+        int         m_qef_oob ; 
 };
 
-// ----------------------------------------------------------------------------
 
-struct OctreeDrawInfo 
-{
-	OctreeDrawInfo()
-		: index(-1)
-		, corners(0)
-	{
-	}
-
-	int				index;
-	int				corners;
-	vec3			position;
-	vec3			averageNormal;
-	svd::QefData	qef;
-};
-
-// ----------------------------------------------------------------------------
 
 class OctreeNode
 {
 public:
 
+    enum OctreeNodeType
+    {
+        Node_None,
+        Node_Internal,
+        Node_Psuedo,
+        Node_Leaf,
+    };
+
+    static int Corners( const glm::ivec3& min, FGLite* fg, const int ncorner=8, const int size=1 );
+
+    static OctreeNode* MakeLeaf(const glm::ivec3& min,  int corners, FGLite* fg, int size );
+
+    static void PopulateLeaf(int corners, OctreeNode* leaf, FGLite* f);
+    static void DestroyOctree(OctreeNode* node) ;
+
+    static void GenerateVertexIndices(OctreeNode* node, std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals, FGLite* fg);
+
+    static void ContourCellProc(OctreeNode* node, std::vector<int>& indexBuffer);
+
+    static OctreeNode* ConstructOctreeNodes(OctreeNode* node, FGLite* fg, int& count);
+
+    static OctreeNode* SimplifyOctree(OctreeNode* node, float threshold);
+
+
 	OctreeNode()
 		: type(Node_None)
 		, min(0, 0, 0)
 		, size(0)
-		, drawInfo(nullptr)
+		, drawInfo(NULL)
 	{
-		for (int i = 0; i < 8; i++)
-		{
-			children[i] = nullptr;
-		}
+		for (int i = 0; i < 8; i++) children[i] = NULL ; 
 	}
 
-	OctreeNode(const OctreeNodeType _type)
-		: type(_type)
-		, min(0, 0, 0)
-		, size(0)
-		, drawInfo(nullptr)
-	{
-		for (int i = 0; i < 8; i++)
-		{
-			children[i] = nullptr;
-		}
-	}
 
 	OctreeNodeType	type;
-	ivec3			min;
+	glm::ivec3		min;
 	int				size;
 	OctreeNode*		children[8];
 	OctreeDrawInfo*	drawInfo;
 };
 
-// ----------------------------------------------------------------------------
 
-OctreeNode* BuildOctree(const ivec3& min, const int size, const float threshold);
-void DestroyOctree(OctreeNode* node);
-void GenerateMeshFromOctree(OctreeNode* node, VertexBuffer& vertexBuffer, IndexBuffer& indexBuffer);
+struct OctCheck 
+{
+    OctCheck(OctreeNode* root) 
+       : 
+       node_count(0),
+       bad_node(0),
+       maxdepth(0)
+       {
+           Check(root, 0);
+       } ; 
 
-// ----------------------------------------------------------------------------
+    void Check(OctreeNode* node, int depth=0 );
 
-#endif	// HAS_OCTREE_H_BEEN_INCLUDED
+    bool ok(){ return bad_node == 0 ; }
+
+    void report(const char* msg);
+
+
+    int node_count ; 
+    int bad_node   ; 
+    int maxdepth   ; 
+};
+
+
+
+
+inline bool operator == ( const OctreeNode& a, const OctreeNode& b)
+{
+    return a.type == b.type && 
+           a.size == b.size &&
+           a.min == b.min  ;
+}
+
+
 
