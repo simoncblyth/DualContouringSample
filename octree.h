@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 
+#include "DCS_API_EXPORT.hh"
 
 struct OctreeDrawInfo ;
 struct FGLite ; 
@@ -12,7 +13,7 @@ struct FGLite ;
 class OctreeNode ; 
 
 
-class OctreeMgr
+class DCS_API OctreeMgr
 {
     public:
         OctreeMgr(OctreeNode* root, float threshold) 
@@ -38,7 +39,7 @@ class OctreeMgr
 
 
 
-class OctreeNode
+class DCS_API OctreeNode
 {
 public:
 
@@ -84,7 +85,7 @@ public:
 };
 
 
-struct OctCheck 
+struct DCS_API OctCheck 
 {
     OctCheck(OctreeNode* root) 
        : 
@@ -110,7 +111,7 @@ struct OctCheck
 
 
 
-inline bool operator == ( const OctreeNode& a, const OctreeNode& b)
+inline DCS_API bool operator == ( const OctreeNode& a, const OctreeNode& b)
 {
     return a.type == b.type && 
            a.size == b.size &&
