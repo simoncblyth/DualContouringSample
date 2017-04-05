@@ -45,6 +45,12 @@ set(_SOURCES
 
 
 set(HEADERS
+
+    FGLite.h
+    octree.h
+    octreedata.h
+    qef.h
+    svd.h
 )
 
 

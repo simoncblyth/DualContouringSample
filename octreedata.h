@@ -3,7 +3,9 @@
 #include <glm/glm.hpp>
 #include "qef.h"
 
-struct OctreeDrawInfo 
+#include "DCS_API_EXPORT.hh"
+
+struct DCS_API OctreeDrawInfo 
 {
     OctreeDrawInfo() : index(-1), corners(0) {}
 

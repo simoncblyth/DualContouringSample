@@ -30,10 +30,12 @@
 #include <iostream>
 #endif
 
+#include "DCS_API_EXPORT.hh"
+
 #include "svd.h"
 namespace svd
 {
-    class QefData
+    class DCS_API QefData
     {
     public:
         float ata_00, ata_01, ata_02, ata_11, ata_12, ata_22;

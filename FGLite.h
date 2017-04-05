@@ -2,7 +2,9 @@
 #include <functional>
 #include <glm/glm.hpp>
 
-struct FGLite 
+#include "DCS_API_EXPORT.hh"
+
+struct DCS_API FGLite 
 {
     std::function<float(float,float,float)>* func ; 
 
