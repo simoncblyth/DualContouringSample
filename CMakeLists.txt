@@ -46,6 +46,7 @@ set(_SOURCES
 
 set(HEADERS
 
+    DCS_API_EXPORT.hh
     FGLite.h
     octree.h
     octreedata.h
