@@ -1,43 +1,26 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.5)
 set(name DualContouringSample)
-project(${name})
+project(${name} VERSION 0.1.0)
 
 include(CTest)
 include(EnvCompilationFlags)
 
+include(GNUInstallDirs)
+set(CMAKE_INSTALL_INCLUDEDIR "externals/include/${name}")
+set(CMAKE_INSTALL_LIBDIR     "externals/lib")
+set(CMAKE_INSTALL_BINDIR     "lib")
+#set(CMAKE_INSTALL_RPATH      "${CMAKE_INSTALL_FULL_LIBDIR}")
 
-# https://cmake.org/Wiki/CMake_RPATH_handling
-if (APPLE)
-   set(CMAKE_SKIP_BUILD_RPATH  FALSE)
-   set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
-   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")  
-   set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
-   # http://www.kitware.com/blog/home/post/510
-   # enable @rpath in the install name for any shared library being built
-   # note: it is planned that a future version of CMake will enable this by default
-   set(CMAKE_MACOSX_RPATH 1)
-endif(APPLE)
-
+find_package(BCM REQUIRED)
+include(BCMDeploy)
 
 find_package(GLM    REQUIRED)
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${GLM_INCLUDE_DIRS} 
-)
-
-add_definitions( 
-   ${GLM_DEFINITIONS} 
-)
-
 
 set(SOURCES
-
     octree.cpp
     qef.cpp
     svd.cpp
-
 )
 
 set(_SOURCES
@@ -45,7 +28,6 @@ set(_SOURCES
 
 
 set(HEADERS
-
     DCS_API_EXPORT.hh
     FGLite.h
     octree.h
@@ -54,9 +36,17 @@ set(HEADERS
     svd.h
 )
 
+add_library(${name} SHARED ${SOURCES})
+target_link_libraries(${name} PUBLIC Opticks::GLM)
 
-add_library(${name} SHARED ${SOURCES}  )
-install(TARGETS ${name}  DESTINATION externals/lib)
-install(FILES ${HEADERS} DESTINATION externals/include/${name})
+# needed for tests that use non-installed headers
+target_include_directories(${name} PUBLIC
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
-#add_subdirectory(tests)
+install(TARGETS ${name}  DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+bcm_deploy(TARGETS ${name} NAMESPACE Opticks:: SKIP_HEADER_INSTALL)
+
+
